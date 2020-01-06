@@ -128,10 +128,50 @@ ft_writing = {
 		}
 	]
 };
-timeline.push(ft_instructions, ft_writing);
+//timeline.push(ft_instructions, ft_writing);
 /*
 	POST-EFT QUESTIONNAIRE
 */
+var PESRQ = {
+	type: 'instructions', 
+	pages: [
+		'Now you will be asked questions about the events you came up with. Please do not try to change your imagination of the events based on the questions. Instead, answer them based on the mental images you already had.',
+		'Move the sliders to indicate your answers. The more you agree with the option on one side, the closer you should move the slider to it.<br><br> For example, if you completely agree with the option on the left, move the slider all the way to the left. If you completely agree with the option on the right, move the slider all the way to the right.',
+		'Some of these questions ask about visual perspective. When we imagine events, we can see them from different points of view in our mind’s eye. If we see the scene from the point of view of our own eyes, this is called a “first-person” perspective. If we see it from any other point of view, this is called a “third-person” perspective. Sometimes we switch back and forth between the two.'
+	], 
+	show_clickable_nav: true
+};
+timeline.push(PESRQ);
+var questions = [
+	'Did you have a mental image of the event?',
+	'Was the general emotional tone of the event positive or negative?',
+	'Were the emotions associated with the event intense?',
+	'What percentage of the time did you see the scene from a first-person perspective?',
+	'When you imagined the event, did it feel like you were “pre-experiencing” it?'
+];
+var axes = [
+	['0<br>No image at all', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10<br>Image as clear and vivid as real life'],
+	['0<br>Negative', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100<br>Positive'],
+	['0<br>Not Intense', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100<br>Very Intense'],
+	['0%', '10', '20', '30', '40', '50%', '60', '70', '80', '90', '100%'],
+	['0<br>Not at all', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100<br>Very much']
+];
+var response = {
+	type: 'html-slider-response',
+	min: 0,
+	max: 100,
+	step: 1,
+	start: 50, 
+	slider_width: 650,
+	timeline: []
+};
+for (i = 0; i < questions.length; i++) {
+	response.timeline.push({
+		stimulus: '<b>' + questions[i] + '</b><br><br>',
+		labels: axes[i]
+	})
+}
+timeline.push(response)
 /*
 	DELAY DISCOUNTING TASK
 */
