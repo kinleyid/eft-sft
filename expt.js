@@ -115,6 +115,7 @@ ft_instructions = {
 	pages: pages,
 	show_clickable_nav: true
 };
+var event_titles = [];
 ft_writing = {
 	type:'survey-text',
 	questions: [
@@ -126,7 +127,11 @@ ft_writing = {
 			rows: 10,
 			columns: 100
 		}
-	]
+	],
+	on_finish: function(data) {
+		var resp = JSON.parse(data.responses);
+		event_titles.push(resp.Q0);
+	}
 };
 //timeline.push(ft_instructions, ft_writing);
 /*
@@ -141,7 +146,7 @@ var PESRQ = {
 	], 
 	show_clickable_nav: true
 };
-timeline.push(PESRQ);
+//timeline.push(PESRQ);
 var questions = [
 	'Did you have a mental image of the event?',
 	'Was the general emotional tone of the event positive or negative?',
@@ -171,18 +176,28 @@ for (i = 0; i < questions.length; i++) {
 		labels: axes[i]
 	})
 }
-timeline.push(response)
+//timeline.push(response);
 /*
 	DELAY DISCOUNTING TASK
 */
+// Uncued delays: 1 week, 1 month, 6 months, 12 months
+var delays = [7, 30, 180, 360, diffDays].sort(function(a, b) {return a - b});
+var iscued = new Array(delays.length);
+var i;
+for (i = 0; i < delays.length; i++) {
+	if (delays[i] == diffDays) {
+		iscued[i] = true;
+	} else {
+		iscued[i] = false;
+	}
+	delays[i] = delays[i] + ' days';
+}
 var dd_data = { // Global variable for tracking the progress of the delay discounting task
 	mon_amts: [400, 800],
 	immediate_value: null,
 	delayed_value: null,
-	// Cued delays: 1 week, 1 month, 6 months, 12 months
-	// Uncued delays: 2 weeks, 2 months, 8 months, 14 months
-	delays: ['7 days', '14 days', '30 days', '60 days', '180 days', '240 days', '360 days', '420 days'],
-	cued: [true, false, true, false, true, false, true, false], // All false except one
+	delays: delays,
+	cued: iscued,
 	cue_count: 0, // Which cue are we on?
 	delay_count: 0, // Which delay are we on?
 	max_trials: 5, // How many trials per delay?
