@@ -36,10 +36,11 @@ timeline.push(consent);
 /*
 	SET FULLSCREEN
 */
-timeline.push({
+fullscreen = {
 	type: 'fullscreen',
 	fullscreen_mode: true
-});
+};
+timeline.push(fullscreen);
 /*
 	DEMOGRAPHICS
 */
@@ -111,7 +112,7 @@ var preambles = [
 var postambles = [
 	'',
 	'',
-	'<br>Click "Next"<br><br>'
+	'<br>Click "Next"<br>'
 ];
 var i, j, currtext;
 for (i = 1; i < instr.length; i++) { // Loop through the remainder of the instructions
@@ -281,13 +282,13 @@ var dd_loop = {
 	timeline: [dd_trial],
 	loop_function: function(data) {
 		if (dd_data.trial_count == dd_data.max_trials) { // Increment the delay counter
+			if (dd_data.cued[dd_data.delay_count]) {
+				dd_data.cue_count++;
+			}
 			dd_data.delay_count++;
 			if (dd_data.delay_count == dd_data.delays.length) { // Exit if we're done all the delays
 				return false;
 			} // Else reset everything
-			if (dd_data.cued[dd_data.delay_count]) {
-				dd_data.cue_count++;
-			}
 			dd_data.trial_count = 0;
 			dd_data.immediate_value = dd_data.mon_amts[0];
 		}
