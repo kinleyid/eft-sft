@@ -11,7 +11,6 @@ jsPsych.data.addProperties({
 	participant_id: participant_id,
 	cond: cond
 });
-
 timeline = [];
 /*
 	CONSENT
@@ -34,6 +33,13 @@ consent = {
 	check_fn: save_email
 };
 timeline.push(consent);
+/*
+	SET FULLSCREEN
+*/
+timeline.push({
+	type: 'fullscreen',
+	fullscreen_mode: true
+});
 /*
 	DEMOGRAPHICS
 */
@@ -105,7 +111,7 @@ var preambles = [
 var postambles = [
 	'',
 	'',
-	'Click "next"'
+	'<br>Click "Next"<br><br>'
 ];
 var i, j, currtext;
 for (i = 1; i < instr.length; i++) { // Loop through the remainder of the instructions
@@ -113,7 +119,7 @@ for (i = 1; i < instr.length; i++) { // Loop through the remainder of the instru
 	for (j = 0; j < instr[i].length; j++) { // Loop through the individual points
 		currtext += (j + 1) + '. ' + instr[i][j] + '<br>'
 	}
-	currtext += postambles[i];
+	currtext += postambles[i-1];
 	pages.push(currtext);
 }
 ft_instructions = {
@@ -334,12 +340,13 @@ saving_options = function(initialMessage) {
 	body.appendChild(discardDataButton);
 }
 addWithdrawButton = function() { // Add this to the first timeline element
-	withdrawButton = document.createElement('button');
+	var withdrawButton = document.createElement('button');
 	withdrawButton.textContent = 'withdraw';
 	withdrawButton.position = 'absolute';
 	withdrawButton.visibility = 'visible';
 	withdrawButton.onclick = function() {saving_options('You have withdrawn from the study')};
-	document.getElementsByTagName("body")[0].appendChild(withdrawButton);
+	var body = document.getElementsByTagName("body")[0];
+	body.insertBefore(withdrawButton, body.childNodes[0])
 }
 timeline[0].on_load = addWithdrawButton;
 jsPsych.init({
