@@ -33,7 +33,7 @@ consent = {
 	cont_btn: "start",
 	check_fn: save_email
 };
-//timeline.push(consent);
+timeline.push(consent);
 /*
 	DEMOGRAPHICS
 */
@@ -46,7 +46,7 @@ var gender = {
 	type: 'survey-multi-choice',
 	questions: [{prompt: 'What is your gender?', options: ['Man', 'Woman', 'Other/prefer not to say'], horizontal: true}]
 };
-//timeline.push(age, gender);
+timeline.push(age, gender);
 /*
 	FUTURE THINKING TASK--INSTRUCTIONS
 */
@@ -133,7 +133,7 @@ ft_writing = {
 		event_titles.push(resp.Q0);
 	}
 };
-//timeline.push(ft_instructions, ft_writing);
+timeline.push(ft_instructions, ft_writing);
 /*
 	POST-EFT QUESTIONNAIRE
 */
@@ -146,7 +146,7 @@ var PESRQ = {
 	], 
 	show_clickable_nav: true
 };
-//timeline.push(PESRQ);
+timeline.push(PESRQ);
 var questions = [
 	'Did you have a mental image of the event?',
 	'Was the general emotional tone of the event positive or negative?',
@@ -176,7 +176,7 @@ for (i = 0; i < questions.length; i++) {
 		labels: axes[i]
 	})
 }
-//timeline.push(response);
+timeline.push(response);
 /*
 	DELAY DISCOUNTING TASK
 */
@@ -265,7 +265,6 @@ var dd_trial = {
 		};
 	}
 };
-
 var dd_loop = {
 	timeline: [dd_trial],
 	loop_function: function(data) {
@@ -283,9 +282,7 @@ var dd_loop = {
 		return true; // Else continue the loop
 	}
 };
-
 timeline.push(dd_instructions, dd_loop);
-
 jsPsych.init({
 	timeline: timeline,
 	on_finish: function() {
