@@ -3,7 +3,7 @@ var pIDdigs = 100000000;
 var participant_id = Math.floor(pIDdigs + Math.random() * (9 * pIDdigs - 1));
 var slider_width = 650; // Slider width in pixels for visual analog scales
 var cond = Math.round(Math.random()); // 0 or 1. 0 = SFT, 1 = EFT
-var diffDays = 30*10; // Delay of interest, in days--good source: https://www.researchgate.net/publication/312869783_Delay_Discounting_of_Video_Game_Players_Comparison_of_Time_Duration_Among_Gamers/figures?lo=1
+var diffDays = 30*3; // Delay of interest, in days--good source: https://www.researchgate.net/publication/312869783_Delay_Discounting_of_Video_Game_Players_Comparison_of_Time_Duration_Among_Gamers/figures?lo=1
 var delayedDate = new Date();
 delayedDate.setDate(delayedDate.getDate() + diffDays);
 delayedDateString = delayedDate.toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'});
