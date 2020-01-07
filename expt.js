@@ -102,12 +102,18 @@ var preambles = [
 	'Examples of events that ARE appropriate for this study:',
 	'Once you have an event in mind that:'
 ];
+var postambles = [
+	'',
+	'',
+	'Click "next"'
+];
 var i, j, currtext;
 for (i = 1; i < instr.length; i++) { // Loop through the remainder of the instructions
 	currtext = preambles[i-1] + '<br><br>';
 	for (j = 0; j < instr[i].length; j++) { // Loop through the individual points
 		currtext += (j + 1) + '. ' + instr[i][j] + '<br>'
 	}
+	currtext += postambles[i];
 	pages.push(currtext);
 }
 ft_instructions = {
@@ -283,6 +289,59 @@ var dd_loop = {
 	}
 };
 timeline.push(dd_instructions, dd_loop);
+/*
+	FINAL SCREEN STUFF
+*/
+save_data = function() {
+	var form = document.createElement('form');
+	document.body.appendChild(form);
+	form.method = 'post';
+	form.action = 'saveData.php';
+	var data = {
+		txt: jsPsych.data.get().csv(),
+		pID: participant_id
+	}
+	var name;
+	for (name in data) {
+		var input = document.createElement('input');
+		input.type = 'hidden';
+		input.name = name;
+		input.value = data[name];
+		form.appendChild(input);
+	}
+	form.submit();
+}
+saving_options = function(initialMessage) {
+	var body = document.getElementsByTagName("BODY")[0];
+	body.innerHTML = '<center><p>' + initialMessage + '</center></p>';
+	
+	var keepDataButton = document.createElement('button');
+	keepDataButton.textContent = 'Keep my data';
+	keepDataButton.visibility = 'visible';
+	keepDataButton.onclick = save_data;
+	body.appendChild(keepDataButton);
+	
+	var br = document.createElement("BR");
+	body.appendChild(br);
+	
+	var discardDataButton = document.createElement('button');
+	discardDataButton.textContent = 'Delete my data';
+	discardDataButton.visibility = 'visible';
+	discardDataButton.style.color = 'red';
+	discardDataButton.onclick = function() {
+		window.location.href = "end.html";
+	}
+	body.appendChild(discardDataButton);
+}
+addWithdrawButton = function() { // Add this to the first timeline element
+	withdrawButton = document.createElement('button');
+	withdrawButton.textContent = 'withdraw';
+	withdrawButton.position = 'absolute';
+	withdrawButton.visibility = 'visible';
+	withdrawButton.onclick = function() {saving_options('You have withdrawn from the study')};
+	document.getElementsByTagName("body")[0].appendChild(withdrawButton);
+}
+timeline[0].on_load = addWithdrawButton;
 jsPsych.init({
 	timeline: timeline,
 	on_finish: function() {
