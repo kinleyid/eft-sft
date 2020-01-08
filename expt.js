@@ -40,7 +40,7 @@ fullscreen = {
 	type: 'fullscreen',
 	fullscreen_mode: true
 };
-timeline.push(fullscreen);
+//timeline.push(fullscreen);
 /*
 	DEMOGRAPHICS
 */
@@ -77,7 +77,7 @@ if (cond == 1) { // EFT
 			'Meeting up with someone to buy a piece of furniture'
 		], [
 			'You have planned or could realistically happen to you on or around ' + delayedDateString,
-			'Would happen on a specific date',
+			'Would not last longer than a day',
 			'Would happen at a specific place',
 			'You have not already experienced many times'
 		]
@@ -99,7 +99,7 @@ if (cond == 1) { // EFT
 		], [
 			'Will happen or could realistically happen on or around ' + delayedDateString,
 			'Is not specific to you',
-			'Would happen on a specific date'
+			'Would not last longer than a day'
 		]
 	]
 }
@@ -345,7 +345,11 @@ addWithdrawButton = function() { // Add this to the first timeline element
 	withdrawButton.textContent = 'withdraw';
 	withdrawButton.position = 'absolute';
 	withdrawButton.visibility = 'visible';
-	withdrawButton.onclick = function() {saving_options('You have withdrawn from the study')};
+	withdrawButton.onclick = function() {
+		if (confirm('Withdraw from the study? ("OK" for "yes", "Cancel" for "no")')) {
+			saving_options('You have withdrawn from the study');
+		}
+	};
 	var body = document.getElementsByTagName("body")[0];
 	body.insertBefore(withdrawButton, body.childNodes[0])
 }
