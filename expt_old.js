@@ -17,7 +17,7 @@ timeline = [];
 */
 save_email = function(elem) {
 	var xhr = new XMLHttpRequest();
-	xhr.open("POST", './saveData.php', true);
+	xhr.open("POST", 'saveData.php', true);
 	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	xhr.onreadystatechange = function() { // Call a function when the state changes.
 		if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
@@ -28,28 +28,30 @@ save_email = function(elem) {
 };
 consent = {
 	type: 'external-html',
-	url: "./consent.html",
+	url: "consent.html",
 	cont_btn: "start",
-	check_fn: save_email,
+	check_fn: save_email
 };
 timeline.push(consent);
+/*
+	SET FULLSCREEN
+*/
+fullscreen = {
+	type: 'fullscreen',
+	fullscreen_mode: true
+};
+//timeline.push(fullscreen);
 /*
 	DEMOGRAPHICS
 */
 var age = {
 	type: 'survey-text',
 	questions: [{prompt: 'What is your age in years?'}],
-	post_trial_gap: 100,
-	data: {
-		block: 'age'
-	}
+	post_trial_gap: 100
 };
 var gender = {
 	type: 'survey-multi-choice',
-	questions: [{prompt: 'What is your gender?', options: ['Man', 'Woman', 'Other/prefer not to say'], horizontal: true}],
-	data: {
-		block: 'gender'
-	}
+	questions: [{prompt: 'What is your gender?', options: ['Man', 'Woman', 'Other/prefer not to say'], horizontal: true}]
 };
 timeline.push(age, gender);
 /*
@@ -142,9 +144,6 @@ ft_writing = {
 	on_finish: function(data) {
 		var resp = JSON.parse(data.responses);
 		event_titles.push(resp.Q0);
-	},
-	data: {
-		block: 'ft_writing'
 	}
 };
 timeline.push(ft_instructions, ft_writing);
@@ -182,10 +181,7 @@ var response = {
 	step: 1,
 	start: 50, 
 	slider_width: 650,
-	timeline: [],
-	data: {
-		block: 'srq'
-	}
+	timeline: []
 };
 for (i = 0; i < questions.length; i++) {
 	response.timeline.push({
@@ -197,6 +193,31 @@ timeline.push(response);
 /*
 	DELAY DISCOUNTING TASK
 */
+// Uncued delays: 1 week, 1 month, 6 months, 12 months
+var delays = [7, 30, 180, 360, diffDays].sort(function(a, b) {return a - b});
+var iscued = new Array(delays.length);
+var i;
+for (i = 0; i < delays.length; i++) {
+	if (delays[i] == diffDays) {
+		iscued[i] = true;
+	} else {
+		iscued[i] = false;
+	}
+	delays[i] = delays[i] + ' days';
+}
+var dd_data = { // Global variable for tracking the progress of the delay discounting task
+	mon_amts: [400, 800],
+	immediate_value: null,
+	delayed_value: null,
+	delays: delays,
+	cued: iscued,
+	cue_count: 0, // Which cue are we on?
+	delay_count: 0, // Which delay are we on?
+	max_trials: 5, // How many trials per delay?
+	trial_count: 0, // Which trial are we on in the current delay?
+	div_pre: '<div style="height: 100px; width: 250px;">', // To ensure consistent button sizes
+	div_post: '</div>'
+};
 var dd_instructions = {
 	type: 'instructions',
 	pages: [
@@ -207,95 +228,74 @@ var dd_instructions = {
 	show_clickable_nav: true,
 	post_trial_gap: 1000
 };
-timeline.push(dd_instructions);
-// Uncued delays: 1 week, 1 month, 6 months, 12 months
-var delays = [7, 30, 180, 360];
-var n_trials_per = 10;
-dd_trialdata = new Array();
-var i, j;
-for (i = 0; i < delays.length; i++) {
-	for (j = 0; j < n_trials_per; j++) {
-		dd_trialdata.push({
-			delay: delays[i],
-			ppn: j / (n_trials_per - 1),
-			cue_idx: null
-		})
-	}
-}
-// Have a special extra number of trials for the cued delay
-var n_trials_cued = 20;
-var j;
-for (j = 0; j < n_trials_cued; j++) {
-	dd_trialdata.push({
-		delay: diffDays,
-		ppn: j / (n_trials_cued - 1),
-		cue_idx: 0
-	})
-}
-// Randomize delays
-dd_trialdata = jsPsych.randomization.shuffle(dd_trialdata);
-var dd_cfg = { // Global variable to configure delay discounting task
-	del_range: [80, 100],
-	trial_idx: 0,
-	trials: dd_trialdata,
-	div_pre: '<div style="height: 100px; width: 250px;">', // To ensure consistent button sizes
-	div_post: '</div>',
-	units: 'days'
-}
-var dd_trials = new Array();
-var i;
-for (i = 0; i < dd_cfg.trials.length; i++) {
-	dd_trials.push({
-		type: 'html-button-response',
-		stimulus: '', // Am I allowed to just not specify one?
-		choices: ['', ''], // Placeholders
-		post_trial_gap: 500,
-		on_start: function(trial) {
-			var curr_trial = dd_cfg.trials[dd_cfg.trial_idx];
-			// Randomize delayed value, get appropriate proportion for immediate value
-			var del_val = Math.round(dd_cfg.del_range[0] + Math.random()*(dd_cfg.del_range[1] - dd_cfg.del_range[0]));
-			var imm_val = Math.round(curr_trial.ppn * del_val);
-			// Get button html for each option
-			var imm_html = dd_cfg.div_pre +
-				'<p>$' + imm_val + '</p><p>now</p>' +
-				dd_cfg.div_post;
-			// Get episodic tag?
-			var cue_idx = curr_trial.cue_idx;
-			var tag;
-			if (cue_idx == null) {
-				tag = '';
-			} else {
-				tag = '<p>(' + event_titles[cue_idx] + ')</p>';
+var dd_trial = {
+	type: 'html-button-response',
+	stimulus: '', // Am I allowed to just not specify one?
+	choices: ['', ''], // Placeholders
+	post_trial_gap: 500,
+	data: {}, // Placeholder
+	on_start: function(trial) {
+		if (dd_data.trial_count > 0) {
+			var last_data = jsPsych.data.getLastTimelineData().values()[0];
+			var inc = dd_data.delayed_value/4*0.5**(dd_data.trial_count - 1); // Amount by which immediate quantity is incremented
+			if (last_data.button_pressed == last_data.order) { // Immediate choice was made
+				dd_data.immediate_value -= inc;
+			} else { // Delayed choice was made
+				dd_data.immediate_value += inc;
 			}
-			var del_html = dd_cfg.div_pre +
-				'<p>$' + del_val + '</p>' +
-				'<p>in ' + curr_trial.delay + ' ' + dd_cfg.units + '</p>' +
-				tag + 
-				dd_cfg.div_post;
-			var order = Math.round(Math.random()) // Order in which buttons appear; 0 = imm, del; 1 = del, imm
-			if (order == 0) {
-				trial.choices = [imm_html, del_html];
-			} else {
-				trial.choices = [del_html, imm_html];
-			}
-			trial.data = {
-				immediate_value: imm_val, // Dollar value of immediate reward
-				delayed_value: del_val, // Dollar value of delayed reward
-				delay: curr_trial.delay,
-				delay_text: del_html, // Display text specifying delay
-				immediate_text: imm_html, // Display text specifying delay
-				order: order,
-				cue: event_titles[cue_idx],
-				block: 'dd'
-			};
-			dd_cfg.trial_idx++;
-		},
-		on_finish(data) {
-			data.imm_chosen = (data.order == data.button_pressed) + 0; // Make it numeric
+		} else {
+			dd_data.immediate_value = dd_data.mon_amts[0];
+			dd_data.delayed_value = dd_data.mon_amts[1];
 		}
-	});
+		var imm = dd_data.div_pre +
+			'<p>$' + dd_data.immediate_value + '</p>' +
+			'<p>now</p>' +
+			dd_data.div_post;
+		if (dd_data.cued[dd_data.delay_count]) {
+			var tag = '<p>(' + event_titles[dd_data.cue_count] + ')</p>';
+		} else {
+			var tag = '';
+		}
+		var del = dd_data.div_pre +
+			'<p>$' + dd_data.delayed_value + '</p>' +
+			'<p>in ' + dd_data.delays[dd_data.delay_count] + '</p>' +
+			tag + 
+			dd_data.div_post;
+		var order = Math.round(Math.random()) // Order in which buttons appear; 0 = imm, del; 1 = del, imm
+		if (order == 0) {
+			trial.choices = [imm, del];
+		} else {
+			trial.choices = [del, imm];
+		}
+		dd_data.trial_count++;
+		trial.data = {
+			immediate_value: Math.round(dd_data.immediate_value), // Dollar value of immediate reward
+			delayed_value: Math.round(dd_data.delayed_value), // Dollar value of delayed reward
+			delay: dd_data.delays[dd_data.delay_count],
+			delay_text: del, // Display text specifying delay
+			immediate_text: imm, // Display text specifying delay
+			order: order
+		};
+	}
 };
-timeline = timeline.concat(dd_trials);
+var dd_loop = {
+	timeline: [dd_trial],
+	loop_function: function(data) {
+		if (dd_data.trial_count == dd_data.max_trials) { // Increment the delay counter
+			if (dd_data.cued[dd_data.delay_count]) {
+				dd_data.cue_count++;
+			}
+			dd_data.delay_count++;
+			if (dd_data.delay_count == dd_data.delays.length) { // Exit if we're done all the delays
+				return false;
+			} // Else reset everything
+			dd_data.trial_count = 0;
+			dd_data.immediate_value = dd_data.mon_amts[0];
+		}
+		return true; // Else continue the loop
+	}
+};
+timeline.push(dd_instructions, dd_loop);
 /*
 	FINAL SCREEN STUFF
 */
@@ -303,7 +303,7 @@ save_data = function() {
 	var form = document.createElement('form');
 	document.body.appendChild(form);
 	form.method = 'post';
-	form.action = './saveData.php';
+	form.action = 'saveData.php';
 	var data = {
 		txt: jsPsych.data.get().csv(),
 		pID: participant_id
